@@ -1,0 +1,14 @@
+name: cq_cam
+channels:
+  - cadquery
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.6
+  - cadquery=master
+  - pip
+  - opencamlib
+  - pip:
+      - "--editable=."
+      - sphinxcadquery
+      - enum-tools[sphinx]
