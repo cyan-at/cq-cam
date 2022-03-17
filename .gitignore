@@ -1,0 +1,9 @@
+docs/
+*.pyc
+.eggs
+.idea
+build
+*.egg-info
+papers
+tmp
+*.iml
