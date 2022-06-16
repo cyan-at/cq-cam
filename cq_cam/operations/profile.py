@@ -8,7 +8,7 @@ from cadquery import cq
 from cq_cam.commands.command import Rapid, Plunge
 from cq_cam.commands.util_command import wire_to_command_sequence2
 
-from cq_cam.operations.base_operation import Task, OperationError
+from cq_cam.operations.base_operation import Operation, OperationError
 from cq_cam.operations.mixin_operation import PlaneValidationMixin, ObjectsValidationMixin
 from cq_cam.operations.tabs import Tabs, NoTabs, WireTabs
 from cq_cam.utils.utils import (
@@ -23,7 +23,7 @@ _op_o_shapes = Union[cq.Wire, cq.Face]
 
 
 @dataclass
-class Profile(PlaneValidationMixin, ObjectsValidationMixin, Task):
+class Profile(PlaneValidationMixin, ObjectsValidationMixin, Operation):
     """
     Create a profiles based on selected wires and faces in a Workplane.
     """
@@ -87,7 +87,7 @@ class Profile(PlaneValidationMixin, ObjectsValidationMixin, Task):
 
         faces: List[cq.Face] = []
         wires: List[cq.Wire] = []
-        objects = self._o_objects()
+        objects = self._o_objects(self.o)
         for obj in objects:
             if isinstance(obj, cq.Face):
                 faces.append(obj)
@@ -118,14 +118,6 @@ class Profile(PlaneValidationMixin, ObjectsValidationMixin, Task):
                 raise OperationError("'wire_offset' must be defined when profiling wires")
             self.profile(wire, self.wire_offset[0] * self.tool_diameter + self.wire_offset[1])
 
-    def _o_objects(self):
-        if isinstance(self.o, cq.Workplane):
-            return self.o.objects
-        elif isinstance(self.o, list):
-            return self.o
-        else:
-            return [self.o]
-
     def profile(self, wire: cq.Wire, offset: float):
 
         face = cq.Workplane(cq.Face.makeFromWires(wire))
@@ -140,9 +132,9 @@ class Profile(PlaneValidationMixin, ObjectsValidationMixin, Task):
 
         command_sequence = wire_to_command_sequence2(offset_wires[0], self.tabs)
 
-        if command_sequence.is_clockwise() != cut_clockwise(True, True, True):
-            command_sequence.reverse()
-            pass
+        #if command_sequence.is_clockwise() != cut_clockwise(True, True, True):
+        #    command_sequence.reverse()
+        #    pass
 
         start = command_sequence.start
         end = command_sequence.end
